@@ -198,3 +198,7 @@ Conditions:
     Fn::Equals:
       - !Ref EnvironmentName
       - development
+  IsProd:
+    Fn::Equals:
+      - !Ref EnvironmentName
+      - production
