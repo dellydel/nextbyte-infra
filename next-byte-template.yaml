@@ -101,6 +101,90 @@ Resources:
         - Key: Application
           Value: nextbyte
 
+  NextByteBucket:
+    Type: AWS::S3::Bucket
+    Condition: IsDev
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: "dev.nextbyteweb.com"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - Date
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+
+  NextByteBucketProd:
+    Type: AWS::S3::Bucket
+    Condition: IsProd
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: "nextbyteweb.com"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - Date
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+
+  NextByteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: IsDev
+    Properties:
+      Bucket: !Ref NextByteBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:*
+            Effect: Allow
+            Resource:
+              - !Sub arn:aws:s3:::${NextByteBucket}
+              - !Sub arn:aws:s3:::${NextByteBucket}/*
+            Principal:
+              AWS:
+                - "*"
+
+  NextByteBucketPolicyProd:
+    Type: AWS::S3::BucketPolicy
+    Condition: IsProd
+    Properties:
+      Bucket: !Ref NextByteBucketProd
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:*
+            Effect: Allow
+            Resource:
+              - !Sub arn:aws:s3:::${NextByteBucketProd}
+              - !Sub arn:aws:s3:::${NextByteBucketProd}/*
+            Principal:
+              AWS:
+                - "*"
+
   APIGatewayRestAPI:
     Type: "AWS::ApiGateway::RestApi"
     Properties:
