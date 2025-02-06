@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Cloudformation template for Nextbyte back end resources"
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    AllowedValues:
+      - development
+      - production
+    Description: The deployment environment
+
+Resources:
+  ContactTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      FifoTopic: false
+      Subscription:
+        - Endpoint: "info@nextbyteweb.com"
+          Protocol: "email"
+        - Endpoint: "dhall@nextbyteweb.com"
+          Protocol: "email"
+      TopicName: !Sub "ContactTopic-${EnvironmentName}"
+  StudentsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    Properties:
+      TableName: !Join ["-", ["students", !Ref EnvironmentName]]
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: Application
+          Value: nextbyte
+  CoursesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ["-", ["courses", !Ref EnvironmentName]]
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: Application
+          Value: nextbyte
+  RegistrationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ["-", ["registrations", !Ref EnvironmentName]]
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: Application
+          Value: nextbyte
+  TestimonialsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ["-", ["testimonials", !Ref EnvironmentName]]
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: Application
+          Value: nextbyte
+  ContactTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ["-", ["contact", !Ref EnvironmentName]]
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: Application
+          Value: nextbyte
+
+  APIGatewayRestAPI:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: !Join ["-", ["next-byte-api", !Ref EnvironmentName]]
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+Conditions:
+  IsDev:
+    Fn::Equals:
+      - !Ref EnvironmentName
+      - development
