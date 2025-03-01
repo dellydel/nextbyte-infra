@@ -129,9 +129,8 @@ Resources:
   NextByteBucketProd:
     Type: AWS::S3::Bucket
     Condition: IsProd
-    DeletionPolicy: Retain
     Properties:
-      BucketName: "nextbyteweb.com"
+      BucketName: "www.nextbyteweb.com"
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
         BlockPublicPolicy: false
